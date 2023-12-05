@@ -15,8 +15,11 @@ from gerencia_de_memoria import Memoria
 
 lista_de_processos_prontos: list[Processo] = []
 
-tamanho_memoria_principal:int = 20
-memoria: Memoria = Memoria(tamanho_memoria_principal)
+tamanho_memoria_principal:int = 30
+area_tempo_real:int = 10
+area_usuarios:int = 20
+memoria: Memoria =\
+	 Memoria(tamanho_memoria_principal,area_tempo_real, area_usuarios)
 
 # referente a regiao critica: lista_de_processos_prontos
 lock = Lock() 
