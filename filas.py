@@ -31,7 +31,7 @@ class ProcessosProntos:
         self.filas_usuario = [FilaUsuario(i) for i in range(1, 4)] #lista de instâncias de FilaUsuario com prioridades de 1 a 3.
 
     #Adiciona um processo à fila apropriada com base na prioridade do processo. Se a prioridade for 0, adiciona à fila de tempo real. Se a prioridade estiver entre 1 e 3, adiciona à fila de usuário correspondente.
-    def adicionar_processo(self, processo):
+    def verifica_fila_processo(self, processo):
         if processo.prioridade == 0:
             self.fila_tempo_real.adicionar_processo(processo)
         elif 1 <= processo.prioridade <= 3:
