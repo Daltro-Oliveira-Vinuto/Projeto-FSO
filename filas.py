@@ -13,7 +13,7 @@ class Fila_Global:
 		self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
 
 		if not self.esta_vazia():
-			return self.fila_global.pop()
+			return self.fila_global.pop(0)
 		else:
 			processo_invalido: Processo = \
 				Processo(-1,-1,-1,-1,False,False,False,False,-1,-1)
