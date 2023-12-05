@@ -10,15 +10,15 @@ import memoria
 from memoria import Memoria
 
 def main() -> None:
-	memoria: Memoria = Memoria(1024)
+	#memoria: Memoria = Memoria(1024)
 
-	lista_de_processos: list[Processo];
+	lista_de_novos_processos: list[Processo] = []
 
-	lista_de_processos = read_processes(memoria)
+	read_processes(lista_de_novos_processos)
 
 	print("conteudo do arquivo processes.txt:")
-	for p in lista_de_processos:
-		print(p)
+	for processo in lista_de_novos_processos:
+		print(processo)
 
 
 	list_file_operations: list[dict[str, str | int] ] = []

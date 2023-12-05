@@ -5,7 +5,7 @@ from processos import Processo
 import memoria
 from memoria import Memoria
 
-def read_processes(memoria: Memoria) ->list[Processo]:
+def read_processes(lista_de_novos_processos: list[Processo]) ->None:
 
 	file = open("processes.txt")
 	lines = file.readlines()
@@ -22,23 +22,19 @@ def read_processes(memoria: Memoria) ->list[Processo]:
 
 		final_lines.append(final_line)
 
-		
-
-	lista_de_processos: list[Processo] = []
+	lista_de_processos_novos: list[Processo] = []
 
 	for i, line in enumerate(final_lines):
-
-		memory_offset:int = memoria.tenta_alocar(line[3])
+		process_id:int = i
+		memory_offset:int = 0
 
 		novo_processo: Processo = \
 		Processo(line[0],line[1],line[2],line[3],\
 			line[4], line[5], line[6],line[7],\
-			i,memory_offset)
+			process_id, memory_offset)
 
-		lista_de_processos.append(novo_processo);
+		lista_de_novos_processos.append(novo_processo);
 
-
-	return lista_de_processos
 
 
 def read_files(list_file_operations: list[ dict[str, str | int] ],\
@@ -85,11 +81,5 @@ def read_files(list_file_operations: list[ dict[str, str | int] ],\
 			nova_operacao["quantidade_blocos"] = new_line[3]
 
 		list_file_operations.append(nova_operacao)
-
-
-
-
-
-
 
 	return blocos_disco

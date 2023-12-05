@@ -22,7 +22,7 @@ class Processo:
 		self.pid:int = pid
 		self.memory_offset:int = memory_offset
 
-		self.estado:str = "pronto"
+		self.estado:str = "novo"
 
 
 	def __str__(self) -> str:
