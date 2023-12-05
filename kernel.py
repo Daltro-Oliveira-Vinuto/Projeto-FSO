@@ -158,7 +158,7 @@ def escalona_processos() -> None:
 
 
 def executa_processo(processo: Processo)->None:
-	pass
+	print("instruction")
 		
 
 if __name__ == "__main__":
