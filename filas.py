@@ -25,8 +25,7 @@ class FilaUsuario(FilaProcessos):
         super().__init__()
         self.prioridade = prioridade
 
-#gerencia as filas de processos.
-class Escalonador:
+class ProcessosProntos:
     def __init__(self): #O construtor da classe. Inicializa a fila de tempo real 
         self.fila_tempo_real = FilaTempoReal()
         self.filas_usuario = [FilaUsuario(i) for i in range(1, 4)] #lista de instâncias de FilaUsuario com prioridades de 1 a 3.
@@ -37,12 +36,3 @@ class Escalonador:
             self.fila_tempo_real.adicionar_processo(processo)
         elif 1 <= processo.prioridade <= 3:
             self.filas_usuario[processo.prioridade - 1].adicionar_processo(processo)
-    #Retorna o próximo processo a ser executado, priorizando a fila de tempo real.
-    def executar_processo(self):
-        if not self.fila_tempo_real.vazia(): # Verifica se a fila de tempo real não está vazia.
-            return self.fila_tempo_real.remover_processo() # Se a fila de tempo real não estiver vazia, o próximo processo a ser executado é removido da fila de tempo real utilizando
-        else: #Se a fila de tempo real estiver vazia
-            for fila_usuario in self.filas_usuario: #Itera sobre cada fila de usuário.
-                if not fila_usuario.vazia(): #Verifica se a fila de usuário atual não está vazia.
-                    return fila_usuario.remover_processo() #Se a fila de usuário não estiver vazia, o próximo processo a ser executado é removido da fila de usuário utilizando
-        
