@@ -24,9 +24,8 @@ class Processo:
 
 		self.estado:str = "novo"
 
-
 	def __str__(self) -> str:
-		processo_str: str = ""
+		processo_str: str = "\nProcesso: =============================\n"
 		processo_str+= f"pid: {self.pid} \n"
 
 		processo_str+= f"instante_de_inicializacao: {self.instante_de_inicializacao} \n"
@@ -41,6 +40,7 @@ class Processo:
 
 		processo_str+= f"memory_offset: {self.memory_offset} \n"
 		processo_str+= f"estado: {self.estado} \n"
+		processo_str+= f"==========================================\n"
 		processo_str+= "\n"
 
 		return processo_str

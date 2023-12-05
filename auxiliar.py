@@ -3,8 +3,6 @@ import threading
 
 import processos; from processos import Processo
 
-import memoria; from memoria import Memoria
-
 
 def read_processes(lista_de_novos_processos: list[Processo]) ->None:
 
