@@ -111,11 +111,6 @@ def inicializa_processos(lista_de_novos_processos: list[Processo], \
 
 
 
-
-
-
-
-
 def escalona_processos() -> None:
 
 	while True:
@@ -129,3 +124,4 @@ def escalona_processos() -> None:
 
 if __name__ == "__main__":
 	main()
+
