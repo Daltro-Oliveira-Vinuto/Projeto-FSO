@@ -3,13 +3,13 @@
 class Processo:
 
 	def __init__(self,\
-		 instante_inicializacao:int, prioridade:int, \
+		 instante_de_inicializacao:int, prioridade:int, \
 		 tempo_de_processador:int, blocos:int, \
 		 impressora:bool, scanner:bool, modem:bool, disco:bool,\
 
 		 pid:int, memory_offset:int ):
 
-		self.instante_inicializacao:int = instante_inicializacao
+		self.instante_de_inicializacao:int = instante_de_inicializacao
 		self.prioridade:int = prioridade
 		self.tempo_de_processador:int = tempo_de_processador
 		self.blocos:int = blocos
@@ -29,7 +29,7 @@ class Processo:
 		processo_str: str = ""
 		processo_str+= f"pid: {self.pid} \n"
 
-		processo_str+= f"instante_inicializacao: {self.instante_inicializacao} \n"
+		processo_str+= f"instante_de_inicializacao: {self.instante_de_inicializacao} \n"
 		processo_str+= f"prioridade: {self.prioridade} \n"
 		processo_str+= f"tempo_de_processador: {self.tempo_de_processador} \n"
 		processo_str+= f"blocos: {self.blocos} \n"
