@@ -67,6 +67,9 @@ def main() -> None:
 	thread_escalona_processos.start()
 
 	thread_inicializa_processos.join()
+	
+	print("Todos os processos foram inicializados!")
+
 	thread_escalona_processos.join()
 
 
@@ -77,12 +80,14 @@ def inicializa_processos(lista_de_novos_processos: list[Processo], \
 	instante_atual:int = 0
 	pid_processo:int = 0  
 
+	processos_inicializados:int = 0
+
 	while True:
 		time.sleep(1) # waits 1000 miliseconds
 		instante_atual+= 1
 
-		#print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
-		#print(f"Tempo atual{instante_atual}")
+		print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
+		print(f"Tempo atual: {instante_atual}")
 		
 		for processo in lista_de_novos_processos:
 			if processo.instante_de_inicializacao == instante_atual:
@@ -98,6 +103,16 @@ def inicializa_processos(lista_de_novos_processos: list[Processo], \
 					lista_de_processos_prontos.append(processo)
 
 				lock.release()
+
+				processos_inicializados+=1 
+
+		if processos_inicializados == len(lista_de_novos_processos):
+			break
+
+
+
+
+
 
 
 
