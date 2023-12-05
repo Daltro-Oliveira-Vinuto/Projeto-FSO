@@ -1,7 +1,8 @@
 from __future__ import annotations 
 import threading; from threading import Thread, Lock
 import time; from time import sleep
-
+import copy;
+import pdb
 
 import auxiliar
 from auxiliar import read_processes, read_files
@@ -9,17 +10,19 @@ from auxiliar import read_processes, read_files
 import processos
 from processos import Processo
 
-import memoria  
-from memoria import Memoria
+import gerencia_de_memoria  
+from gerencia_de_memoria import Memoria
 
 lista_de_processos_prontos: list[Processo] = []
+
+tamanho_memoria_principal:int = 20
+memoria: Memoria = Memoria(tamanho_memoria_principal)
 
 # referente a regiao critica: lista_de_processos_prontos
 lock = Lock() 
 
 
 def main() -> None:
-	memoria: Memoria = Memoria(1024)
 
 	lista_de_novos_processos: list[Processo] = []
 
@@ -58,7 +61,7 @@ def main() -> None:
 	# na tabela de processos(cria um PCB) se houver memoria suficiente
 	thread_inicializa_processos = \
 	 Thread(target=inicializa_processos,\
-	 	 args=(lista_de_novos_processos, memoria,))
+	 	 args=(lista_de_novos_processos,))
 
 	# inicializa o escalonador de processos
 	thread_escalona_processos = Thread(target=escalona_processos)
@@ -75,8 +78,7 @@ def main() -> None:
 
 
 
-def inicializa_processos(lista_de_novos_processos: list[Processo], \
-						 memoria: Memoria) ->None:
+def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 	instante_atual:int = 0
 	pid_processo:int = 0  
 
@@ -93,14 +95,15 @@ def inicializa_processos(lista_de_novos_processos: list[Processo], \
 			if processo.instante_de_inicializacao == instante_atual:
 				lock.acquire()
 
-				memory_offset: int = memoria.tenta_alocar(processo.blocos)
-				if (memory_offset == -1):
+				conseguiu_alocar:bool = memoria.tenta_alocar(processo)
+				if (conseguiu_alocar == False):
 					print("Erro sem memoria disponivel!")
-				else:
+				elif (conseguiu_alocar == True):
 					processo.pid = pid_processo
-					processo.memory_offset = memory_offset
 					pid_processo+=1
 					lista_de_processos_prontos.append(processo)
+					print("Processo carregado na memoria e inserido na lista de processos prontos:")
+					print(processo)
 
 				lock.release()
 
