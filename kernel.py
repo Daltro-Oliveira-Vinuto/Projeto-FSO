@@ -13,7 +13,12 @@ from processos import Processo
 import gerencia_de_memoria  
 from gerencia_de_memoria import Memoria
 
+import filas  
+from filas import Fila_Global
+
 lista_de_processos_prontos: list[Processo] = []
+fila_global: Fila_Global = Fila_Global(lista_de_processos_prontos)
+
 
 tamanho_memoria_principal:int = 30
 area_tempo_real:int = 10
@@ -78,6 +83,8 @@ def main() -> None:
 
 	thread_escalona_processos.join()
 
+	print("Todos os processos completados!")
+
 
 
 
@@ -91,7 +98,6 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 		time.sleep(1) # waits 1000 miliseconds
 		instante_atual+= 1
 
-		print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
 		print(f"Tempo atual: {instante_atual}")
 		
 		for processo in lista_de_novos_processos:
@@ -104,13 +110,19 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 				elif (conseguiu_alocar == True):
 					processo.pid = pid_processo
 					pid_processo+=1
-					lista_de_processos_prontos.append(processo)
+
+					processo.estado = "pronto"
+
+					# faz deep copy
+					lista_de_processos_prontos.append(copy.deepcopy(processo))
 					print("Processo carregado na memoria e inserido na lista de processos prontos:")
 					print(processo)
 
 				lock.release()
 
 				processos_inicializados+=1 
+
+		print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
 
 		if processos_inicializados == len(lista_de_novos_processos):
 			break
@@ -123,9 +135,30 @@ def escalona_processos() -> None:
 		#regiao critica
 		lock.acquire()
 
-
+		prox_processo: Processo =\
+				fila_global.obtem_prox_processo(lista_de_processos_prontos)
 
 		lock.release()
+
+		if (prox_processo.estado != "invalido"):
+			
+			executa_processo(prox_processo)
+
+			if (prox_processo.estado == "pronto"):
+				
+				fila_global.adiciona_processo(copy.deepcopy(prox_processo))
+			elif (prox_processo.estado == "finalizado"):
+				pass
+			elif (prox_processo.estado == "bloqueado"):
+				pass 
+
+		if (fila_global.esta_vazia() == True):
+			break
+
+
+
+def executa_processo(processo: Processo)->None:
+	pass
 		
 
 if __name__ == "__main__":

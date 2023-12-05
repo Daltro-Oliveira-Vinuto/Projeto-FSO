@@ -53,11 +53,12 @@ class Memoria:
 						self.mapa_de_bits[i] = 1 
 
 					processo.memory_offset = memory_offset
+					
 					conseguiu_alocar = True
 					break
 			
 
-		print(self.mapa_de_bits)
+		#print(self.mapa_de_bits)
 		return conseguiu_alocar
 
 
