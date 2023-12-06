@@ -16,9 +16,15 @@ from gerencia_de_memoria import Memoria
 import filas  
 from filas import Fila_Global
 
+import gerenciador_de_arquivos
+from gerenciador_de_arquivos import Arquivo
+
+arquivos:Arquivo
+
 lista_de_processos_prontos: list[Processo] = []
 fila_global: Fila_Global = Fila_Global(lista_de_processos_prontos)
 
+todos_processos_inicializados: bool = False
 
 tamanho_memoria_principal:int = 30
 area_tempo_real:int = 10
@@ -27,7 +33,8 @@ memoria: Memoria =\
 	 Memoria(tamanho_memoria_principal,area_tempo_real, area_usuarios)
 
 # referente a regiao critica: lista_de_processos_prontos
-lock = Lock() 
+lock = Lock()
+lock_processos_inicializados = Lock()
 
 
 def main() -> None:
@@ -63,6 +70,8 @@ def main() -> None:
 		print(file_operation)
 	"""
 
+	global arquivos
+	arquivos = Arquivo(blocos_disco, arquivos_na_memoria, list_file_operations)
 
 	# começa a contagem e manda cada processo para o escalonador no seu
 	# tempo de inicializacao adequado e portanto tambem insere o processo
@@ -84,15 +93,14 @@ def main() -> None:
 	thread_escalona_processos.join()
 
 	print("Todos os processos completados!")
-
-
+	print("Estado final dos dados no disco: ")
+	print(arquivos.dados_no_disco)
 
 
 def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 	instante_atual:int = 0
-	pid_processo:int = 0  
-
-	processos_inicializados:int = 0
+	pid_processo:int = 0 
+	processos_inicializados:int = 0 
 
 	while True:
 		time.sleep(1) # waits 1000 miliseconds
@@ -102,6 +110,7 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 		
 		for processo in lista_de_novos_processos:
 			if processo.instante_de_inicializacao == instante_atual:
+
 				lock.acquire()
 
 				conseguiu_alocar:bool = memoria.tenta_alocar(processo)
@@ -118,15 +127,25 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 					print("Processo carregado na memoria e inserido na lista de processos prontos:")
 					print(processo)
 
-				lock.release()
-
 				processos_inicializados+=1 
 
-		print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
+				lock.release()
+
+
+		#print(f"processos inicializados: {processos_inicializados}")
+
+		#print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
+
 
 		if processos_inicializados == len(lista_de_novos_processos):
-			break
+			lock_processos_inicializados.acquire()
 
+			global todos_processos_inicializados
+			todos_processos_inicializados = True
+
+			lock_processos_inicializados.release()
+
+			break
 
 
 def escalona_processos() -> None:
@@ -141,8 +160,11 @@ def escalona_processos() -> None:
 		lock.release()
 
 		if (prox_processo.estado != "invalido"):
-			
+
+			#carrega_contexto_anterior()
+			#carrega_context_atual()
 			executa_processo(prox_processo)
+
 
 			if (prox_processo.estado == "pronto"):
 				
@@ -152,14 +174,31 @@ def escalona_processos() -> None:
 			elif (prox_processo.estado == "bloqueado"):
 				pass 
 
-		if (fila_global.esta_vazia() == True):
-			break
+		lock_processos_inicializados.acquire()
 
+		if (fila_global.esta_vazia() == True and \
+			todos_processos_inicializados):
+			break
+		
+		lock_processos_inicializados.release()
 
 
 def executa_processo(processo: Processo)->None:
-	print("instruction")
+	linha:int = processo.linha_atual  # carrega contexto
+
+	for i in range(processo.quantum):
+		time.sleep(0.5)
+		print(f"Processo: {processo.pid} instruction {linha+1}");
+		arquivos.executa_operacao(processo)
+
+		linha+=1
+		processo.tempo_restante-= 1
+		if (processo.tempo_restante <= 0):
+			processo.estado = "finalizado"
+			break
 		
+	processo.linha_atual = linha # salva contexto
+
 
 if __name__ == "__main__":
 	main()
