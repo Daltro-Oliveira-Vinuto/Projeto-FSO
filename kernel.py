@@ -106,7 +106,7 @@ def main() -> None:
 
 
 def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
-	instante_atual:int = 0
+	instante_atual:int = -1
 	pid_processo:int = 0 
 	processos_inicializados:int = 0 
 	global numero_processos_inicializados
