@@ -1,38 +1,42 @@
-class FilaProcessos:
-    def __init__(self): #inicializa uma lista vazia chamada processos.
-        self.processos = []
+import processos; from processos import Processo
+from typing import Dict
 
-    def adicionar_processo(self, processo): #Adiciona um processo à lista de processos.
-        self.processos.append(processo)
+class Fila_Global:
 
-    def remover_processo(self): #Remove e retorna o primeiro processo na lista (FIFO)
-        if not self.vazia():
-            return self.processos.pop(0)
+    def __init__(self, fila_processos_prontos: list[Processo]):
+        self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
+
+    def obtem_prox_processo(self, fila_processos_prontos: list[Processo]) -> Processo:
+        self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
+
+        if not self.esta_vazia():
+            return self.fila_global.pop(0)
         else:
-            return None
+            processo_invalido: Processo = Processo(-1, -1, -1, -1, False, False, False, False, -1, -1)
+            processo_invalido.estado = "invalido"
+            return processo_invalido
 
-    def vazia(self): #Retorna True se a lista de processos estiver vazia, False caso contrário.
-        return len(self.processos) == 0
+    def ordena_processos_prontos(self, fila_processos_prontos: list[Processo]) -> list[Processo]:
+        fila_tempo_real: list[Processo] = []
+        filas_usuario: Dict[int, list[Processo]] = {0: [], 1: [], 2: []}
 
-#Esta é uma subclasse de FilaProcessos que herda todos os métodos de FilaProcessos.
-class FilaTempoReal(FilaProcessos):
-    pass
+        for processo in fila_processos_prontos:
+            if processo.prioridade == 0:
+                fila_tempo_real.append(processo)
+            elif 1 <= processo.prioridade <= 3:
+                filas_usuario[processo.prioridade].append(processo)
 
+        # Ordena as filas de usuário por prioridade
+        for prioridade in range(1, 4):
+            filas_usuario[prioridade] = sorted(filas_usuario[prioridade], key=lambda x: x.prioridade)
 
-#Esta é outra subclasse de FilaProcessos. Ela adiciona um atributo prioridade durante a inicialização. Cada instância desta classe representa uma fila de processos de usuário com uma prioridade específica.
-class FilaUsuario(FilaProcessos): 
-    def __init__(self, prioridade):
-        super().__init__()
-        self.prioridade = prioridade
+        # Concatena as filas de tempo real e de usuário para formar a fila global
+        nova_fila = fila_tempo_real + filas_usuario[0] + filas_usuario[1] + filas_usuario[2]
 
-class ProcessosProntos:
-    def __init__(self): #O construtor da classe. Inicializa a fila de tempo real 
-        self.fila_tempo_real = FilaTempoReal()
-        self.filas_usuario = [FilaUsuario(i) for i in range(1, 4)] #lista de instâncias de FilaUsuario com prioridades de 1 a 3.
+        return nova_fila
 
-    #Adiciona um processo à fila apropriada com base na prioridade do processo. Se a prioridade for 0, adiciona à fila de tempo real. Se a prioridade estiver entre 1 e 3, adiciona à fila de usuário correspondente.
-    def verifica_fila_processo(self, processo):
-        if processo.prioridade == 0:
-            self.fila_tempo_real.adicionar_processo(processo)
-        elif 1 <= processo.prioridade <= 3:
-            self.filas_usuario[processo.prioridade - 1].adicionar_processo(processo)
+    def esta_vazia(self) -> bool:
+        return len(self.fila_global) == 0
+
+    def adiciona_processo(self, novo_processo: Processo) -> None:
+        self.fila_global.append(novo_processo)
