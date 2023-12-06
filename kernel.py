@@ -139,7 +139,7 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 					print("Processo carregado na memoria e inserido na lista de processos prontos:")
 					print(processo)
 
-				processos_inicializados+=1 
+					processos_inicializados+=1 
 
 				lock.release()
 
