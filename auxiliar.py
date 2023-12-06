@@ -74,7 +74,7 @@ def read_files(list_file_operations: list[ dict[str, str | int] ],\
 
 		nova_operacao["pid"] = int(new_line[0])
 		nova_operacao["codigo_operacao"] = int(new_line[1])
-		nova_operacao["nome_arquivo"] = new_line[2]
+		nova_operacao["nome_do_arquivo"] = new_line[2]
 
 		if (nova_operacao["codigo_operacao"] == 0):
 			nova_operacao["quantidade_blocos"] = new_line[3]

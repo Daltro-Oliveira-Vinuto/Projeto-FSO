@@ -29,10 +29,11 @@ lista_de_processos_prontos: list[Processo] = []
 fila_global: Fila_Global = Fila_Global(lista_de_processos_prontos)
 
 todos_processos_inicializados: bool = False
+numero_processos_inicializados:int = -1
 
-tamanho_memoria_principal:int = 30
-area_tempo_real:int = 10
-area_usuarios:int = 20
+tamanho_memoria_principal:int = 1024
+area_tempo_real:int = 64
+area_usuarios:int = 960
 memoria: Memoria =\
 	 Memoria(tamanho_memoria_principal,area_tempo_real, area_usuarios)
 
@@ -108,6 +109,7 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 	instante_atual:int = 0
 	pid_processo:int = 0 
 	processos_inicializados:int = 0 
+	global numero_processos_inicializados
 
 	while True:
 		time.sleep(1) # waits 1000 miliseconds
@@ -153,12 +155,14 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 			global todos_processos_inicializados
 			todos_processos_inicializados = True
 
+			numero_processos_inicializados = processos_inicializados
 			lock_processos_inicializados.release()
 
 			break
 
 
 def escalona_processos() -> None:
+	numero_processos_finalizados:int = 0
 
 	while True:
 		#regiao critica
@@ -177,19 +181,17 @@ def escalona_processos() -> None:
 
 
 			if (prox_processo.estado == "pronto"):
-				
 				fila_global.adiciona_processo(copy.deepcopy(prox_processo))
 			elif (prox_processo.estado == "finalizado"):
 				memoria.desaloca(prox_processo)
 				io.desaloca_recurso(prox_processo)
-
+				numero_processos_finalizados+= 1 
 			elif (prox_processo.estado == "bloqueado"):
 				pass 
 
 		lock_processos_inicializados.acquire()
 
-		if (fila_global.esta_vazia() == True and \
-			todos_processos_inicializados):
+		if (numero_processos_finalizados == numero_processos_inicializados):
 			break
 		
 		lock_processos_inicializados.release()
@@ -198,18 +200,38 @@ def escalona_processos() -> None:
 def executa_processo(processo: Processo)->None:
 	linha:int = processo.linha_atual  # carrega contexto
 
-	for i in range(processo.quantum):
-		time.sleep(0.5)
-		print(f"Processo: {processo.pid} instruction {linha+1}");
-		arquivos.executa_operacao(processo)
+	if (processo.prioridade != 0):
+		for i in range(processo.quantum):
+			time.sleep(0.5)
+			print(f"Processo: {processo.pid} instruction {linha+1}");
+			arquivos.executa_operacao(processo)
 
-		linha+=1
-		processo.tempo_restante-= 1
-		if (processo.tempo_restante <= 0):
-			processo.estado = "finalizado"
-			break
+			linha+=1
+			processo.tempo_restante-= 1
+			if (processo.tempo_restante <= 0):
+				processo.estado = "finalizado"
+				break
+	elif (processo.prioridade == 0): # nao preemptivo
+		j:int = 0 
+		while processo.tempo_restante > 0:
+			time.sleep(0.5)
+			print(f"Processo: {processo.pid} instruction {j+1}");
+			arquivos.executa_operacao(processo)
+
+			j+=1
+			processo.tempo_restante-= 1
+			if (processo.tempo_restante <= 0):
+				processo.estado = "finalizado"
+				break
 		
 	processo.linha_atual = linha # salva contexto
+
+	# se nao for um processo de tempo real e
+	# a prioridade ja nao for a menor possivel(3) 
+	# entao diminui(+1) a prioridade
+	if (processo.prioridade !=0):
+		if (processo.prioridade < 3):
+			processo.prioridade+= 1
 
 
 if __name__ == "__main__":

@@ -18,15 +18,15 @@ class Arquivo:
 			if operation["pid"] == processo.pid:
 				if (operation["codigo_operacao"] == 0):
 					conseguiu_criar:bool = self.tenta_criar_arquivo(\
-						str(operation["nome_arquivo"]),\
+						str(operation["nome_do_arquivo"]),\
 						int(operation["quantidade_blocos"])
 						)
 
 					if not conseguiu_criar:
 						print("Nao ha memoria suficiente ",end='')
-						print(f"para criar o arquivo {operation['nome_arquivo']}")
+						print(f"para criar o arquivo {operation['nome_do_arquivo']}")
 					else:
-						print(f"Arquivo {operation['nome_arquivo']}",end='')
+						print(f"Arquivo {operation['nome_do_arquivo']}",end='')
 						print(f" criado com sucesso!")
 
 				elif (operation["codigo_operacao"] == 1):
@@ -35,13 +35,13 @@ class Arquivo:
 						(processo.nome_arquivo_criado == str(operation["nome_do_arquivo"])
 						))
 						):
-						self.tenta_deletar_arquivo(str(operation["nome_arquivo"]))
+						self.tenta_deletar_arquivo(str(operation["nome_do_arquivo"]))
 
-						print(f"Arquivo {operation['nome_arquivo']} ",end='')
+						print(f"Arquivo {operation['nome_do_arquivo']} ",end='')
 						print(f"deletado com sucesso!")
 					else:
 						print(f"Erro ao deletar o arquivo ",end='')
-						print(f" {operation['nome_arquivo']}")
+						print(f" {operation['nome_do_arquivo']}")
 
 				self.list_file_operations.pop(index)
 

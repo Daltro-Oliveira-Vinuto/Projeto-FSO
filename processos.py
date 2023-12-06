@@ -23,7 +23,11 @@ class Processo:
 		self.memory_offset:int = memory_offset
 
 		self.estado:str = "novo"
-		self.quantum = 1
+		
+		if (self.prioridade == 0):  
+			self.quantum = 1  
+		else:
+			self.quantum = 1*self.prioridade;
 
 		self.tempo_restante:int = tempo_de_processador
 
