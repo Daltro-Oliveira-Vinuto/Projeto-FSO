@@ -7,6 +7,7 @@ class Fila_Global:
         self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
 
     def obtem_prox_processo(self, fila_processos_prontos: list[Processo]) -> Processo:
+        # fila ordenada
         self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
 
         if not self.esta_vazia():
