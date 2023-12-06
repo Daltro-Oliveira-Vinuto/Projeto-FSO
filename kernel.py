@@ -73,6 +73,9 @@ def main() -> None:
 	global arquivos
 	arquivos = Arquivo(blocos_disco, arquivos_na_memoria, list_file_operations)
 
+	print("Estado inicial dos dados no disco:")
+	print(arquivos.dados_no_disco)
+	
 	# começa a contagem e manda cada processo para o escalonador no seu
 	# tempo de inicializacao adequado e portanto tambem insere o processo
 	# na tabela de processos(cria um PCB) se houver memoria suficiente

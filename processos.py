@@ -29,6 +29,8 @@ class Processo:
 
 		self.linha_atual:int = 0
 
+		self.nome_arquivo_criado:str = "*"
+
 	def __str__(self) -> str:
 		processo_str: str = "\nProcesso: =============================\n"
 		processo_str+= f"pid: {self.pid} \n"
