@@ -19,6 +19,10 @@ from filas import Fila_Global
 import gerenciador_de_arquivos
 from gerenciador_de_arquivos import Arquivo
 
+import gerenciador_de_io; from gerenciador_de_io import IO_Hierarquia
+
+io:IO_Hierarquia = IO_Hierarquia()
+
 arquivos:Arquivo
 
 lista_de_processos_prontos: list[Processo] = []
@@ -117,8 +121,11 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 				lock.acquire()
 
 				conseguiu_alocar:bool = memoria.tenta_alocar(processo)
+				conseguiu_io:bool = io.tenta_alocar(processo)
 				if (conseguiu_alocar == False):
 					print("Erro sem memoria disponivel!")
+				elif (conseguiu_io == False):
+					print(f"Erro recurso nao disponivel")
 				elif (conseguiu_alocar == True):
 					processo.pid = pid_processo
 					pid_processo+=1
@@ -173,7 +180,9 @@ def escalona_processos() -> None:
 				
 				fila_global.adiciona_processo(copy.deepcopy(prox_processo))
 			elif (prox_processo.estado == "finalizado"):
-				pass
+				memoria.desaloca(prox_processo)
+				io.desaloca_recurso(prox_processo)
+
 			elif (prox_processo.estado == "bloqueado"):
 				pass 
 

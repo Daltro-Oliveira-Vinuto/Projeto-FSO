@@ -4,5 +4,5 @@ autores:
 
 Instrucoes:
 	O programa deve ser interpretado usando Python 3.10
-	Para executar basta digitar: make
+	Para executar basta digitar: make load
 

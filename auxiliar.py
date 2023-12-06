@@ -11,7 +11,7 @@ def read_processes(lista_de_novos_processos: list[Processo]) ->None:
 
 	final_lines:list[list[int]] = []
 	for line in lines:
-		new_line:str = line.split(", ")
+		new_line: list[str] = line.split(", ")
 
 		final_line:list[int] = []
 		for i, element in enumerate(new_line):
@@ -23,14 +23,14 @@ def read_processes(lista_de_novos_processos: list[Processo]) ->None:
 
 	lista_de_processos_novos: list[Processo] = []
 
-	for i, line in enumerate(final_lines):
+	for i, value in enumerate(final_lines):
 		process_id:int = i
 		memory_offset:int = 0
 
 		novo_processo: Processo = \
-		Processo(line[0],line[1],line[2],line[3],\
-			line[4], line[5], line[6],line[7],\
-			process_id, memory_offset)
+		Processo(int(value[0]), int(value[1]), int(value[2]), int(value[3]),\
+			bool(value[4]), bool(value[5]), bool(value[6]), bool(value[7]),\
+			int(process_id), int(memory_offset))
 
 		lista_de_novos_processos.append(novo_processo);
 
