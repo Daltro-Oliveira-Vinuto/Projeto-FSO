@@ -1,43 +1,42 @@
 import processos; from processos import Processo
-from typing import Dict
 
 class Fila_Global:
 
     def __init__(self, fila_processos_prontos: list[Processo]):
-        self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
+        self.fila_tempo_real: list[Processo] = []
+        self.filas_usuario: list[list[Processo]] = [[] for _ in range(3)]
+        self.ordena_processos_prontos(fila_processos_prontos)
 
     def obtem_prox_processo(self, fila_processos_prontos: list[Processo]) -> Processo:
-        # fila ordenada
-        self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
+        self.ordena_processos_prontos(fila_processos_prontos)
+        if self.fila_tempo_real:
+            return self.fila_tempo_real.pop(0)
+        elif any(self.filas_usuario):
+            # Encontrar a primeira fila de usuário não vazia
+            for fila_usuario in self.filas_usuario:
+                if fila_usuario:
+                    return fila_usuario.pop(0)
+        return Processo(-1, -1, -1, -1, False, False, False, False, -1, -1)
 
-        if not self.esta_vazia():
-            return self.fila_global.pop(0)
-        else:
-            processo_invalido: Processo = Processo(-1, -1, -1, -1, False, False, False, False, -1, -1)
-            processo_invalido.estado = "invalido"
-            return processo_invalido
-
-    def ordena_processos_prontos(self, fila_processos_prontos: list[Processo]) -> list[Processo]:
-        fila_tempo_real: list[Processo] = []
-        filas_usuario: Dict[int, list[Processo]] = {0: [], 1: [], 2: []}
-
+    def ordena_processos_prontos(self, fila_processos_prontos: list[Processo]) -> None:
         for processo in fila_processos_prontos:
             if processo.prioridade == 0:
-                fila_tempo_real.append(processo)
+                self.fila_tempo_real.append(processo)
             elif 1 <= processo.prioridade <= 3:
-                filas_usuario[processo.prioridade].append(processo)
+                self.filas_usuario[processo.prioridade - 1].append(processo)
 
         # Ordena as filas de usuário por prioridade
-        for prioridade in range(1, 4):
-            filas_usuario[prioridade] = sorted(filas_usuario[prioridade], key=lambda x: x.prioridade)
-
-        # Concatena as filas de tempo real e de usuário para formar a fila global
-        nova_fila = fila_tempo_real + filas_usuario[0] + filas_usuario[1] + filas_usuario[2]
-
-        return nova_fila
+        for prioridade in range(3):
+            self.filas_usuario[prioridade] = sorted(self.filas_usuario[prioridade], key=lambda x: x.prioridade)
 
     def esta_vazia(self) -> bool:
-        return len(self.fila_global) == 0
+        return not (self.fila_tempo_real or any(self.filas_usuario))
 
     def adiciona_processo(self, novo_processo: Processo) -> None:
-        self.fila_global.append(novo_processo)
+        # Adiciona o processo à fila correspondente
+        if novo_processo.prioridade == 0:
+            self.fila_tempo_real.append(novo_processo)
+        elif 1 <= novo_processo.prioridade <= 3:
+            self.filas_usuario[novo_processo.prioridade - 1].append(novo_processo)
+        # Reordena as filas após a adição
+        self.ordena_processos_prontos([])
