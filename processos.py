@@ -23,6 +23,11 @@ class Processo:
 		self.memory_offset:int = memory_offset
 
 		self.estado:str = "novo"
+		self.quantum = 1
+
+		self.tempo_restante:int = tempo_de_processador
+
+		self.linha_atual:int = 0
 
 	def __str__(self) -> str:
 		processo_str: str = "\nProcesso: =============================\n"

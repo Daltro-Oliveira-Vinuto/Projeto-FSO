@@ -4,13 +4,13 @@ import processos; from processos import Processo
 class Fila_Global:
 
 	def __init__(self, fila_processos_prontos: list[Processo]):
-		self.fila_global = \
-			self.ordena_processos_prontos(fila_processos_prontos)
+		self.fila_global: list[Processo] = []
+		self.ordena_processos_prontos(fila_processos_prontos)
 
 	def obtem_prox_processo(self, fila_processos_prontos: list[Processo])\
 		-> Processo:
 
-		self.fila_global = self.ordena_processos_prontos(fila_processos_prontos)
+		self.ordena_processos_prontos(fila_processos_prontos)
 
 		if not self.esta_vazia():
 			return self.fila_global.pop(0)
@@ -21,7 +21,7 @@ class Fila_Global:
 			return processo_invalido
 
 	def ordena_processos_prontos(self, \
-		fila_processos_prontos: list[Processo])->list[Processo]:
+		fila_processos_prontos: list[Processo]) ->None:
 
 		nova_fila: list[Processo] = []
 		numero_processos_prontos:int = len(fila_processos_prontos)
@@ -29,7 +29,8 @@ class Fila_Global:
 			novo_processo: Processo = fila_processos_prontos.pop()
 			nova_fila.append(novo_processo)
 
-		return nova_fila
+		self.fila_global+= nova_fila
+
 
 
 	def esta_vazia(self) ->bool:
