@@ -232,6 +232,7 @@ def executa_processo(processo: Processo)->None:
 	if (processo.prioridade !=0):
 		if (processo.prioridade < 3):
 			processo.prioridade+= 1
+		processo.quantum = 1*processo.prioridade
 
 
 if __name__ == "__main__":
