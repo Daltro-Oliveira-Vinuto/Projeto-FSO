@@ -19,7 +19,7 @@ from filas import Fila_Global
 import gerenciador_de_arquivos
 from gerenciador_de_arquivos import Arquivo
 
-arquivos: Arquivo = Arquivo()
+arquivos:Arquivo
 
 lista_de_processos_prontos: list[Processo] = []
 fila_global: Fila_Global = Fila_Global(lista_de_processos_prontos)
@@ -70,6 +70,8 @@ def main() -> None:
 		print(file_operation)
 	"""
 
+	global arquivos
+	arquivos = Arquivo(blocos_disco, arquivos_na_memoria, list_file_operations)
 
 	# começa a contagem e manda cada processo para o escalonador no seu
 	# tempo de inicializacao adequado e portanto tambem insere o processo
@@ -91,8 +93,8 @@ def main() -> None:
 	thread_escalona_processos.join()
 
 	print("Todos os processos completados!")
-
-
+	print("Estado final dos dados no disco: ")
+	print(arquivos.dados_no_disco)
 
 
 def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
@@ -181,10 +183,8 @@ def escalona_processos() -> None:
 		lock_processos_inicializados.release()
 
 
-
-
 def executa_processo(processo: Processo)->None:
-	linha:int = processo.linha_atual  
+	linha:int = processo.linha_atual  # carrega contexto
 
 	for i in range(processo.quantum):
 		time.sleep(0.5)
@@ -197,7 +197,7 @@ def executa_processo(processo: Processo)->None:
 			processo.estado = "finalizado"
 			break
 		
-	processo.linha_atual = linha
+	processo.linha_atual = linha # salva contexto
 
 
 if __name__ == "__main__":
