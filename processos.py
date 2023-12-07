@@ -5,7 +5,7 @@ class Processo:
 	def __init__(self,\
 		 instante_de_inicializacao:int, prioridade:int, \
 		 tempo_de_processador:int, blocos:int, \
-		 impressora:bool, scanner:bool, modem:bool, disco:bool,\
+		 impressora:int, scanner:int, modem:int, disco:int,\
 
 		 pid:int, memory_offset:int ):
 
@@ -14,10 +14,10 @@ class Processo:
 		self.tempo_de_processador:int = tempo_de_processador
 		self.blocos:int = blocos
 
-		self.impressora:bool = impressora
-		self.scanner:bool = scanner
-		self.modem:bool = modem
-		self.disco:bool = disco
+		self.impressora:int = impressora
+		self.scanner:int = scanner
+		self.modem:int = modem
+		self.disco:int = disco
 
 		self.pid:int = pid
 		self.memory_offset:int = memory_offset
@@ -52,6 +52,5 @@ class Processo:
 		processo_str+= f"memory_offset: {self.memory_offset} \n"
 		processo_str+= f"estado: {self.estado} \n"
 		processo_str+= f"==========================================\n"
-		processo_str+= "\n"
 
 		return processo_str

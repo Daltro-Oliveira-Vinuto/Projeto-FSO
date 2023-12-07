@@ -29,7 +29,7 @@ def read_processes(lista_de_novos_processos: list[Processo]) ->None:
 
 		novo_processo: Processo = \
 		Processo(int(value[0]), int(value[1]), int(value[2]), int(value[3]),\
-			bool(value[4]), bool(value[5]), bool(value[6]), bool(value[7]),\
+			int(value[4]), int(value[5]), int(value[6]), int(value[7]),\
 			int(process_id), int(memory_offset))
 
 		lista_de_novos_processos.append(novo_processo);

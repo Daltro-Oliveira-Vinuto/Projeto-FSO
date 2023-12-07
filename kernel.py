@@ -41,12 +41,16 @@ memoria: Memoria =\
 lock = Lock()
 lock_processos_inicializados = Lock()
 
+processos_restantes_para_inicializar:int
 
 def main() -> None:
 
 	lista_de_novos_processos: list[Processo] = []
 
 	read_processes(lista_de_novos_processos)
+
+	copia_lista_de_novos_processos: list[Processo] =\
+		lista_de_novos_processos.copy()
 
 	# usado para debug somente
 	"""
@@ -97,6 +101,7 @@ def main() -> None:
 	thread_inicializa_processos.join()
 	
 	print("Todos os processos foram inicializados!")
+	print(f"Processos restantes: {processos_restantes_para_inicializar}")
 
 	thread_escalona_processos.join()
 
@@ -108,8 +113,9 @@ def main() -> None:
 def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 	instante_atual:int = -1
 	pid_processo:int = 0 
-	processos_inicializados:int = 0 
-	global numero_processos_inicializados
+	processos_inicializados:int = 0
+	global processos_restantes_para_inicializar
+	processos_restantes_para_inicializar = 1
 
 	while True:
 		time.sleep(1) # waits 1000 miliseconds
@@ -117,38 +123,72 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 
 		print(f"Tempo atual: {instante_atual}")
 		
-		for processo in lista_de_novos_processos:
-			if processo.instante_de_inicializacao == instante_atual:
+		#print(io.recursos)
+
+		index:int = 0 
+		while index < len(lista_de_novos_processos):
+			processo: Processo = lista_de_novos_processos[index]
+
+			if (instante_atual >= processo.instante_de_inicializacao):
 
 				lock.acquire()
 
-				conseguiu_alocar:bool = memoria.tenta_alocar(processo)
-				conseguiu_io:bool = io.tenta_alocar(processo)
-				if (conseguiu_alocar == False):
-					print("Erro sem memoria disponivel!")
-				elif (conseguiu_io == False):
-					print(f"Erro recurso nao disponivel")
-				elif (conseguiu_alocar == True):
-					processo.pid = pid_processo
-					pid_processo+=1
+				if ((processo.prioridade != 0 and processo.blocos > area_usuarios) or 
+					(processo.prioridade == 0 and processo.blocos > area_tempo_real)):
 
-					processo.estado = "pronto"
+					lista_de_novos_processos.pop(index)
 
-					# faz deep copy
-					lista_de_processos_prontos.append(copy.deepcopy(processo))
-					print("Processo carregado na memoria e inserido na lista de processos prontos:")
-					print(processo)
+					index = 0
+				else:
+				
+					conseguiu_alocar:bool = memoria.tenta_alocar(processo)
+					
+					if (processo.prioridade != 0):
+						conseguiu_io = io.tenta_alocar(processo)
 
-					processos_inicializados+=1 
+
+					if (conseguiu_alocar == False):
+						print(f"Erro ao inicializar pid: {processo.pid}, sem memoria disponivel!")
+					elif (processo.prioridade != 0 and conseguiu_io == False):
+						print(f"Erro ao inicializar pid: {processo.pid}, recurso nao disponivel")
+					elif (conseguiu_alocar == True):
+						processo.pid = pid_processo
+						pid_processo+=1
+
+						processo.estado = "pronto"
+
+						# faz deep copy
+						lista_de_processos_prontos.append(copy.deepcopy(processo))
+						print("Processo carregado na memoria e inserido na lista de processos prontos:")
+						print(processo)
+
+						#processos_inicializados+=1
+						lista_de_novos_processos.pop(index)
+
+						index = 0
 
 				lock.release()
+
+			index+=1
+
+		lock_processos_inicializados.acquire()
+
+		processos_restantes_para_inicializar = \
+			len(lista_de_novos_processos)
+
+		if (processos_restantes_para_inicializar == 0):
+			#print("inicializacao realizada com sucesso")
+			break
+
+		lock_processos_inicializados.release()  
+
 
 
 		#print(f"processos inicializados: {processos_inicializados}")
 
 		#print(f"numero de processos prontos: {len(lista_de_processos_prontos)}")
 
-
+		"""
 		if processos_inicializados == len(lista_de_novos_processos):
 			lock_processos_inicializados.acquire()
 
@@ -159,10 +199,12 @@ def inicializa_processos(lista_de_novos_processos: list[Processo]) ->None:
 			lock_processos_inicializados.release()
 
 			break
+		"""
 
 
 def escalona_processos() -> None:
 	numero_processos_finalizados:int = 0
+	global processos_restantes_para_inicializar 
 
 	while True:
 		#regiao critica
@@ -179,22 +221,27 @@ def escalona_processos() -> None:
 			#carrega_context_atual()
 			executa_processo(prox_processo)
 
-
 			if (prox_processo.estado == "pronto"):
 				fila_global.adiciona_processo(copy.deepcopy(prox_processo))
 			elif (prox_processo.estado == "finalizado"):
 				memoria.desaloca(prox_processo)
 				io.desaloca_recurso(prox_processo)
-				numero_processos_finalizados+= 1 
+				numero_processos_finalizados+= 1
+
+				#print(f"processos restantes size: {processos_restantes_para_inicializar}")
+				#print(f"escolar {fila_global.esta_vazia()}")
 			elif (prox_processo.estado == "bloqueado"):
 				pass 
 
-		lock_processos_inicializados.acquire()
+		#lock_processos_inicializados.acquire()
 
-		if (numero_processos_finalizados == numero_processos_inicializados):
+		if (processos_restantes_para_inicializar == 0 and\
+			fila_global.esta_vazia()):
+
+			print("escalonamento correto")
 			break
 		
-		lock_processos_inicializados.release()
+		#lock_processos_inicializados.release()
 
 
 def executa_processo(processo: Processo)->None:

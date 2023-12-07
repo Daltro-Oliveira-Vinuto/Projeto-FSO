@@ -7,63 +7,45 @@ import processos; from processos import Processo
 class IO_Hierarquia:
 
 	def __init__(self) -> None:
-		self.recursos:list[list[bool]] = [[False,False], [False], [False], [False,False]]
+		self.recursos:list[int] = [2, 1, 1, 2]
 
 	def tenta_alocar(self, processo: Processo) ->bool:
 		conseguiu_alocar: bool = False 
 
-		if (processo.impressora == True and (self.recursos[0][0] == False or\
-											self.recursos[0][1] == False)) or\
-		   (processo.scanner == True and self.recursos[1][0] == False) or \
-		   (processo.modem == True and self.recursos[2][0] == False) or \
-		   (processo.disco == True and (self.recursos[3][0] == False or\
-		   								self.recursos[3][1] == False)):
+		if (processo.impressora > 0 and (self.recursos[0] - processo.impressora) >= 0):
+			self.recursos[0]-= processo.impressora
 
-		   conseguiu_alocar = True
+			conseguiu_alocar = True
 
-		if (processo.impressora == True and self.recursos[0][0] == False):
-			self.recursos[0][0] = True  
 
-			return conseguiu_alocar
+		if processo.scanner > 0 and (self.recursos[1] - processo.scanner >= 0):
+			self.recursos[1]-= processo.scanner  
 
-		elif (processo.impressora == True and self.recursos[0][1] == False):
-			self.recursos[0][1] = True  
+			conseguiu_alocar = True
 
-			return conseguiu_alocar
+		if processo.modem > 0 and (self.recursos[2] - processo.modem >= 0):
+			self.recursos[2]-= processo.modem
 
-		elif (processo.scanner == True and self.recursos[1][0] == False):
-			self.recursos[1][0] = True  
+			conseguiu_alocar = True
 
-			return conseguiu_alocar
+		if processo.disco > 0 and (self.recursos[3] - processo.disco >= 0):
+			self.recursos[3]-= processo.disco
 
-		elif (processo.modem == True and self.recursos[2][0] == False):
-			self.recursos[2][0] = True  
+			conseguiu_alocar = True
 
-			return conseguiu_alocar
+		if (processo.impressora == 0 and\
+			processo.scanner == 0 and\
+			processo.modem == 0 and \
+			processo.disco == 0):
 
-		elif (processo.disco == True and self.recursos[3][0] == False):
-			self.recursos[3][0] = True  
-
-			return conseguiu_alocar
-		elif (processo.disco == True and self.recursos[3][1] == False):
-			self.recursos[3][1] = True
+			conseguiu_alocar = True
 
 		return conseguiu_alocar
 
 	def desaloca_recurso(self, processo: Processo) ->None:
-		if (processo.impressora == True and self.recursos[0][0] == True):
-			self.recursos[0][0] = False 
-		elif (processo.impressora == True and self.recursos[0][1] == True):
-			self.recursos[0][1] = False   
 
-		elif (processo.scanner == True and self.recursos[1][0] == True):
-			self.recursos[1][0] = False  
-
-		elif (processo.modem == True and self.recursos[2] == True):
-			self.recursos[2][0] = False  
-
-		elif (processo.disco == True and self.recursos[3][0] == True):
-			self.recursos[3][0] = False
-		elif (processo.impressora == True and self.recursos[3][1] == True):
-			self.recursos[3][1] = False  
+		self.recursos[0]+= processo.impressora
+		self.recursos[1]+= processo.scanner
+		self.recursos[2]+= processo.modem
+		self.recursos[3]+= processo.disco
 
